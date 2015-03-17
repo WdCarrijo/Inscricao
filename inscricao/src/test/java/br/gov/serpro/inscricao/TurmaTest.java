@@ -14,6 +14,7 @@ import br.gov.serpro.inscricao.business.TurmaBC;
 import br.gov.serpro.inscricao.entity.Aluno;
 import br.gov.serpro.inscricao.security.Credenciais;
 
+//teste commit
 @RunWith(DemoiselleRunner.class)
 public class TurmaTest {
 
