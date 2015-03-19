@@ -1,5 +1,6 @@
 package br.gov.serpro.inscricao.business;
 
+import java.io.Serializable;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -17,7 +18,8 @@ import br.gov.serpro.inscricao.config.InscricaoConfig;
 import br.gov.serpro.inscricao.entity.Aluno;
 
 @BusinessController
-public class TurmaBC {
+public class TurmaBC implements Serializable {
+	private static final long serialVersionUID = 1L;
 
 	@Inject
 	private Logger logger;
@@ -60,7 +62,7 @@ public class TurmaBC {
 	}
 
 	@RequiredPermission(resource = "turma", operation = "consultar")
-	private List<Aluno> obterAlunosMatriculados() {
+	public List<Aluno> obterAlunosMatriculados() {
 		return alunoBC.findAll();
 	}
 
