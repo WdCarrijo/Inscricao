@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 
 import br.gov.frameworkdemoiselle.exception.ExceptionHandler;
 import br.gov.frameworkdemoiselle.lifecycle.Startup;
+import br.gov.frameworkdemoiselle.message.MessageContext;
 import br.gov.frameworkdemoiselle.security.RequiredPermission;
 import br.gov.frameworkdemoiselle.stereotype.BusinessController;
 import br.gov.frameworkdemoiselle.transaction.Transactional;
@@ -32,6 +33,9 @@ public class TurmaBC implements Serializable {
 
 	@Inject
 	private AlunoBC alunoBC;
+	
+	@Inject
+	MessageContext messageContext;	
 
 	/**
 	 * Essa anotação abre uma transação com o BD antes da execução do matricular
@@ -40,17 +44,19 @@ public class TurmaBC implements Serializable {
 	 * EntityManager "JPA"
 	 */
 	@Transactional
-	@RequiredPermission(resource = "turma", operation = "matricular")
+	@RequiredPermission(resource = "aluno", operation = "matricular")
 	public void matricular(Aluno aluno) {
 		if (estaMariculado(aluno)
-				|| obterAlunosMatriculados().size() >= config
-						.getCapacidadeTurma()) {
+				|| obterAlunosMatriculados().size() == 5) {
 			throw new TurmaException();
 		}
-		alunoBC.insert(aluno);
-		logger.info(bundle.getString("matricula.sucesso", aluno));
+		alunoBC.insert(aluno);	
+		String mensagem = bundle.getString("matricula.sucesso", aluno.getNome());
+		logger.info(mensagem);
+		messageContext.add(mensagem);
 	}
 
+	@RequiredPermission(resource="aluno", operation="consultar")
 	public boolean estaMariculado(Aluno aluno) {
 		return obterAlunosMatriculados().contains(aluno);
 	}
@@ -58,10 +64,9 @@ public class TurmaBC implements Serializable {
 	@ExceptionHandler
 	public void tratar(TurmaException e) {
 		logger.warn(bundle.getString("matricula.erro"));
-		throw new TurmaException();
+		throw e;
 	}
-
-	@RequiredPermission(resource = "turma", operation = "consultar")
+	
 	public List<Aluno> obterAlunosMatriculados() {
 		return alunoBC.findAll();
 	}
